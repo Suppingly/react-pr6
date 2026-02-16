@@ -1,0 +1,8 @@
+добавить package.json
+установить библиотеки
+npx prisma init
+создать базу данных в postgres
+npx prisma migrate dev --name setup_db
+в .env добавить переменные JWT_SECRET,DATABASE_URL,PORT
+npx prisma db push
+npm run dev
