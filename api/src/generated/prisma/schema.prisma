@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model MediaItem {
+  id             Int      @id @default(autoincrement())
+  title          String
+  desc           String
+  category       String
+  type           String
+  filePath       String?
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id])
+  author         String
+  ratingAvgScore Float    @default(0)
+  count          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  rating         Rating[]
+
+  @@index([category])
+  @@index([type])
+}
+
+model Rating {
+  id        Int       @id @default(autoincrement())
+  value     Int
+  mediaId   Int
+  media     MediaItem @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([mediaId, userId])
+}
+
+model User {
+  id        Int         @id @default(autoincrement())
+  name      String
+  email     String      @unique
+  password  String
+  role      Role        @default(USER)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  media     MediaItem[]
+  ratings   Rating[]
+}
