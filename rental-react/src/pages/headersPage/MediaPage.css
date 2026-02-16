@@ -1,0 +1,124 @@
+@import "tailwindcss";
+.media-page{
+  @apply mx-[5%] 
+}
+.media-title{
+  @apply flex flex-row justify-between items-center bg-yellow-200 h-17.5 my-5 p-3 rounded-[20px] border-2 border-yellow-300 shadow-[5px_5px_10px_rgba(0,0,0,0.2)]
+}
+.page-title{
+  @apply font-bold text-2xl
+}
+.auth{
+  @apply flex flex-row justify-between items-center gap-5
+}
+.user-name{
+  @apply font-medium p-2 bg-amber-200 rounded-full
+}
+.button-login{
+  @apply bg-amber-400 hover:bg-amber-500 p-2 rounded-full border-2 border-amber-600 cursor-pointer
+}
+.button-logout{
+  @apply bg-red-400 hover:bg-red-500 p-2 rounded-full border-2 border-red-600 cursor-pointer
+}
+.media-form{
+  @apply bg-yellow-100 p-5 rounded-[30px] border-2 border-yellow-300 w-6/10 shadow-[5px_5px_10px_rgba(0,0,0,0.2)]
+}
+.form-title{
+  @apply font-medium text-xl
+}
+.form-input-title{
+  @apply bg-yellow-50 w-1/2 mt-4 rounded-[10px] p-1
+}
+.form-input-desc{
+  @apply bg-yellow-50 w-full mt-4 rounded-[10px] p-1
+}
+.form-input-category{
+  @apply bg-yellow-50 w-1/2 mt-4 rounded-[10px] p-1
+}
+.form-input{
+  @apply bg-amber-300 my-4 rounded-[10px] p-1 cursor-pointer
+}
+.form-input-d{
+  @apply w-0 h-0
+}
+.form-select{
+  @apply my-3 bg-yellow-50 rounded-[10px] p-1
+}
+.form-button{
+  @apply bg-amber-300 rounded-[10px] px-5 py-1 cursor-pointer border-2 border-amber-500 hover:bg-amber-400 active:bg-amber-500
+}
+.section-title{
+  @apply font-bold text-3xl my-5 bg-yellow-100 rounded-[15px] p-2 w-fit border-2 border-yellow-300 shadow-[5px_5px_10px_rgba(0,0,0,0.2)]
+}
+.media-list{
+  @apply grid grid-cols-3 gap-5
+}
+.media-card{
+  @apply bg-yellow-50 border-2 border-yellow-200 rounded-[15px] p-3 shadow-[5px_5px_10px_rgba(0,0,0,0.2)] h-fit
+}
+.media-title{
+  @apply font-bold text-2xl bg-amber-200 w-fit rounded-[15px] p-1
+}
+.media-category{
+  @apply font-medium text-xl bg-amber-100 w-fit rounded-[10px] px-1 mt-3
+}
+.media-author{
+  @apply font-medium text-lg bg-amber-50 w-fit rounded-[10px] px-1 mt-2
+}
+.media-desc{
+  @apply bg-amber-50 rounded-[15px] px-1 w-fit
+}
+.media-buttons{
+  @apply flex flex-row justify-around mt-5 font-bold
+}
+.media-button-green{
+  @apply w-9/20 bg-amber-300 py-2 rounded-full border-3 border-amber-500 cursor-pointer hover:bg-amber-400 active:bg-amber-500
+}
+.media-button-red{
+  @apply w-9/20 bg-red-400 py-2 rounded-full border-3 border-red-600 cursor-pointer hover:bg-red-500 active:bg-pink-500
+}
+.media-update-bg{
+  @apply fixed top-0 left-0 w-full h-full bg-black/50 flex justify-center items-center z-1000
+}
+.media-update-con{
+  @apply bg-yellow-100 p-10 rounded-[15px] border-5 border-yellow-400 w-1/2
+}
+.media-update-form{
+  @apply w-6/10 mt-5 flex flex-col justify-start
+}
+.media-update-title{
+  @apply font-bold text-2xl
+}
+.media-update-buttons{
+  @apply flex w-1/2 justify-between
+}
+.media-update-submit{
+  @apply bg-amber-300 rounded-[10px] py-1 cursor-pointer border-2 border-amber-500 hover:bg-amber-400 active:bg-amber-500 w-9/20
+}
+.media-update-close{
+  @apply w-9/20 bg-orange-200 rounded-[10px] py-1 cursor-pointer border-2 border-orange-400 hover:bg-orange-300 active:bg-orange-400
+}
+.media-delete-bg{
+  @apply fixed top-0 left-0 w-full h-full bg-black/50 flex justify-center items-center z-1000
+}
+.media-delete-con{
+  @apply flex flex-col justify-center items-center bg-yellow-100 px-5 py-5 rounded-[15px] border-5 border-yellow-400 w-1/2
+}
+.media-delete-title{
+  @apply font-bold text-2xl
+}
+.media-delete-form{
+  @apply w-6/10 mt-5 flex justify-between
+}
+.filters{
+  @apply mt-6 flex flex-row items-center gap-4
+}
+.media-player{
+  @apply my-4 w-full
+}
+.media-video{
+  @apply w-full rounded-[10px]
+}
+.media-audio{
+  @apply w-full
+}
