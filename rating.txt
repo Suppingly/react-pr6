@@ -1,0 +1,212 @@
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  ratings   Rating[]
+  // ... другие поля
+}
+
+model Post {
+  id            String   @id @default(uuid())
+  title         String
+  content       String
+  ratings       Rating[]
+  averageRating Float    @default(0) // Кэшированное среднее
+  ratingCount   Int      @default(0) // Кэшированное кол-во
+  createdAt     DateTime @default(now())
+}
+
+model Rating {
+  id        String   @id @default(uuid())
+  value     Int      // Оценка от 1 до 5
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  // Пользователь может оставить только одну оценку на пост
+  @@unique([postId, userId]) 
+}
+
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
+exports.ratePost = async (req, res) => {
+  const { postId } = req.params;
+  const { value } = req.body;
+  const userId = req.user.id; // Получаем из middleware авторизации
+
+  // Валидация
+  if (!value || value < 1 || value > 5) {
+    return res.status(400).json({ message: "Оценка должна быть от 1 до 5" });
+  }
+
+  try {
+    // Используем транзакцию для атомарности
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Создаем или обновляем запись рейтинга
+      await tx.rating.upsert({
+        where: {
+          postId_userId: { // Используем составной ключ из @@unique
+            postId,
+            userId,
+          },
+        },
+        update: {
+          value,
+        },
+        create: {
+          value,
+          postId,
+          userId,
+        },
+      });
+
+      // 2. Считаем новую статистику на основе всех рейтингов этого поста
+      const stats = await tx.rating.aggregate({
+        where: { postId },
+        _avg: { value: true },
+        _count: { value: true },
+      });
+
+      const newAverage = stats._avg.value || 0;
+      const newCount = stats._count.value || 0;
+
+      // 3. Обновляем кэшированные поля в посте
+      const updatedPost = await tx.post.update({
+        where: { id: postId },
+        data: {
+          averageRating: newAverage,
+          ratingCount: newCount,
+        },
+      });
+
+      return {
+        average: updatedPost.averageRating,
+        count: updatedPost.ratingCount,
+      };
+    });
+
+    res.json({ success: true, rating: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Ошибка сервера при обновлении рейтинга" });
+  }
+};
+
+// Эндпоинт для получения поста (чтобы фронтенд знал, голосовал ли юзер)
+exports.getPost = async (req, res) => {
+  const { postId } = req.params;
+  const userId = req.user?.id; // Может быть не авторизован
+
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        averageRating: true,
+        ratingCount: true,
+        // Если юзер авторизован, проверяем, голосовал ли он
+        ratings: userId ? {
+          where: { userId },
+          select: { value: true }
+        } : false
+      }
+    });
+
+    if (!post) return res.status(404).json({ message: "Пост не найден" });
+
+    // Вытаскиваем голос пользователя, если он есть
+    const userVote = post.ratings?.length > 0 ? post.ratings[0].value : 0;
+    
+    // Удаляем поле ratings из ответа, чтобы не светить лишнее
+    const { ratings, ...postData } = post;
+
+    res.json({ ...postData, userVote });
+  } catch (error) {
+    res.status(500).json({ message: "Ошибка сервера" });
+  }
+};
+
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const RatingStars = ({ postId, initialRating, initialCount, initialUserVote = 0 }) => {
+  const [rating, setRating] = useState(initialRating); 
+  const [count, setCount] = useState(initialCount);
+  const [userVote, setUserVote] = useState(initialUserVote); // Голос текущего юзера
+  const [hover, setHover] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const handleRate = async (value) => {
+    if (loading) return;
+    setLoading(true);
+
+    // Оптимистичное обновление UI (для отзывчивости)
+    const prevVote = userVote;
+    setUserVote(value);
+    
+    // Временный пересчет среднего для UI (приблизительно)
+    // Точное значение придет с сервера
+    let tempAvg = rating;
+    if (prevVote === 0) {
+        // Новый голос
+        tempAvg = ((rating * count) + value) / (count + 1);
+        setCount(c => c + 1);
+    } else {
+        // Изменение голоса
+        tempAvg = ((rating * count) - prevVote + value) / count;
+    }
+    setRating(tempAvg);
+
+    try {
+      const response = await axios.post(`/api/posts/${postId}/rate`, {
+        value: value
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+
+      // Синхронизируем с реальными данными с сервера
+      setRating(response.data.rating.average);
+      setCount(response.data.rating.count);
+    } catch (error) {
+      // Откат изменений при ошибке
+      setUserVote(prevVote);
+      setRating(initialRating);
+      setCount(initialCount);
+      alert("Не удалось отправить оценку");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="rating-container" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div className="stars">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <span
+            key={star}
+            onClick={() => handleRate(star)}
+            onMouseEnter={() => !userVote && setHover(star)}
+            onMouseLeave={() => !userVote && setHover(0)}
+            style={{
+              cursor: loading ? 'not-allowed' : 'pointer',
+              color: star <= (hover || userVote || rating) ? '#ffc107' : '#e4e5e9',
+              fontSize: '24px',
+              transition: 'color 0.2s'
+            }}
+          >
+            ★
+          </span>
+        ))}
+      </div>
+      <span className="rating-text" style={{ fontSize: '14px', color: '#666' }}>
+        {rating.toFixed(1)} ({count})
+      </span>
+    </div>
+  );
+};
+
+export default RatingStars;
