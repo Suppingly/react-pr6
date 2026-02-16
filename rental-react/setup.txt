@@ -1,0 +1,5 @@
+npm create vite@latest rental-react
+npm install
+npm install normalize.css
+установить библиотеки tailwindcss, react-router-dom и прочие
+npm run dev
