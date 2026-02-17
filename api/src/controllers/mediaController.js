@@ -173,7 +173,7 @@ class MediaController {
     try {
       const userId = req.user.id
       const { mediaId } = req.body
-      const rate = await mediaService.get_rating({mediaId,userId})
+      const rate = await mediaService.getRating({mediaId,userId})
       res.json({ data: rate, error: null })
     } catch (err) {
       next(err)
@@ -184,7 +184,7 @@ class MediaController {
       const userId = req.user.id
       const { ratingScore } = req.body
       const { mediaId } = req.params
-      const rating = await mediaService.set_rating({ratingScore,mediaId,userId})
+      const rating = await mediaService.setRating({ratingScore,mediaId,userId})
       res.json({ data: rating, error: null })
     } catch (err) {
       next(err)
@@ -194,3 +194,4 @@ class MediaController {
 
 
 export default new MediaController()
+
