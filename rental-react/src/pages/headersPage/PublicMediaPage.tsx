@@ -113,6 +113,13 @@ const PublicMediaPage = () => {
         ))}
       </div>
     </div>
+    {isUpdateOpen && (
+        <SetRating
+          media={updateData}
+          onSave={handleSave}
+          onClose={closeUpdate}
+        />
+    )}
   )
 }
 
