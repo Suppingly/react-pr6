@@ -101,3 +101,22 @@ export async function getUsers(): Promise<Authors[]> {
   const body = await res.json()
   return body.data
 }
+
+export async function getRating(id): Promise<any> {
+  const res = await fetch(`${API_URL}rating`, {
+    method: 'GET',
+    credentials: 'include',
+  })
+  const body = await res.json()
+  return body.data
+}
+
+export async function setRating(formData: FormData): Promise<Media> {
+  const res = await fetch(`${API_URL}rating`, {
+    method: 'POST',
+    body: formData,
+    credentials: 'include',
+  })
+  const body = await res.json()
+  return body.data
+}
