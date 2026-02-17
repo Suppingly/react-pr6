@@ -73,6 +73,12 @@ class MediaService {
     })
   }
 
+  async getRating({mediaId,userId}) {
+    return await prisma.rating.findUnique(
+      where: { userId: Number(userId),mediaId: Number(mediaId) },
+    )
+  }
+  
   async set_rating({ratingScore,mediaId,userId}) {
     await prisma.rating.upsert({
       where: {postId_userId:{userId,userId}},
@@ -98,9 +104,7 @@ class MediaService {
       count: updated.ratingCount,
     }
   }
-  /*async get_media_ratings(id) {
-
-  }*/
 }
+
 
 export default new MediaService()
