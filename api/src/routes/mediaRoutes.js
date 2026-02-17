@@ -12,5 +12,8 @@ router.get('/public', mediaController.getAllPublic)
 router.get('/:id', authMiddlewareAlt, mediaController.getById)
 router.put('/:id', authMiddlewareAlt, uploadMedia.single('file'), mediaController.update)
 router.delete('/:id', authMiddlewareAlt, mediaController.delete)
+router.get('/rating'),authMiddlewareAlt, mediaController.getRatingById)
+router.post('/rating',authMiddlewareAlt, mediaController.setRating)
 
 export default router
+
