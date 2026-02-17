@@ -3,7 +3,55 @@ import { fetchPublicMedia } from '../../api/media'
 import type { MediaExtend } from '../../types/Media'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../authPage/context/AuthContext'
+import type { DeleteMedia } from '../../types/Media'
 import './MediaPage.css'
+
+const DeleteMedia: React.FC<DeleteMedia> = ({ id, onSave, onClose }) => {
+  useEffect(() => {
+    //Запрос на получение текущей оценки пользователя на запись
+  }
+  const [rating,setRating] = useState(rate?rate:'')
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const formData = new FormData()
+    formData.append('mediaId',id)
+    formData.append('rating',rating)
+    await setRating(formData)
+    setRating
+    onSave()
+    onClose()
+  }
+  return (
+    <div className='media-update-bg'>
+      <div className='media-update-con'>
+        <h2 className='media-update-title'>Оценка записи</h2>
+        <form className='media-update-form' onSubmit={handleSubmit}>
+          <select
+            value={rating}
+            className='form-select'
+            onChange={(e) => setRating(e.target.value)}
+            required
+          >
+            <option value=''>Введите оценку</option>
+            <option value={1}>1</option>
+            <option value={2}>2</option>
+            <option value={3}>3</option>
+            <option value={4}>4</option>
+            <option value={5}>5</option>
+            ))}
+          </select><p/>
+          <button className='media-button-red' type='submit'>
+            Удалить
+          </button>
+          <button onClick={onClose} className='media-button-green' type='button'>
+            Нет
+          </button>
+        </form>
+        <p />
+      </div>
+    </div>
+  )
+}
 
 const PublicMediaPage = () => {
   const navigate = useNavigate()
@@ -26,6 +74,15 @@ const PublicMediaPage = () => {
       type: filterType || undefined,
     })
     setMediaItems(items)
+  }
+  const [isUpdateOpen, setIsUpdateOpen] = useState<boolean>(false)
+  const [updateData, setUpdateData] = useState<Number>(0)
+  const openUpdate = (media:Media) => {
+    setUpdateData(media)
+    setIsUpdateOpen(true)
+  }
+  const closeUpdate = () => {
+    setIsUpdateOpen(false)
   }
 
   return (
@@ -108,15 +165,15 @@ const PublicMediaPage = () => {
             )}
             <h4 className='media-author'>От: {item.author}</h4>
             <h4 className='media-desc'>{item.desc}</h4>
-            <button className='form-button'>Оценить</button>
+            <button className='form-button' onClick=>Оценить</button>
           </div>
         ))}
       </div>
     </div>
-    {isUpdateOpen && (
+    {isRatingOpen && (
         <SetRating
-          media={updateData}
-          onSave={handleSave}
+          id={updateData}
+          onSave={reload}
           onClose={closeUpdate}
         />
     )}
